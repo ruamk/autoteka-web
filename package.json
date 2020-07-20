@@ -1,0 +1,24 @@
+{
+  "name": "autoteka-web",
+  "version": "1.0.0",
+  "description": "Demo of Autoteka API usage.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ruamc/autoteka-web.git"
+  },
+  "author": "Max Taldykin",
+  "license": "MIT",
+  "homepage": "https://github.com/ruamc/autoteka-web#readme",
+  "dependencies": {
+    "bulma": "^0.8.0",
+    "classnames": "^2.2.6",
+    "preact": "^10.3.2"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  }
+}
