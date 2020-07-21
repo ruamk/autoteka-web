@@ -4,9 +4,11 @@ import           Control.Concurrent (threadDelay)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 
 import           Data.Aeson (ToJSON)
+import qualified Data.Aeson.Text as Aeson
 import           Data.Function ((&))
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as L
+import qualified Data.Text.Lazy.IO as L
 import           Network.HTTP.Client (newManager)
 import           Network.HTTP.Client.TLS (tlsManagerSettings)
 import           Servant.Client (BaseUrl(..), Scheme(Https))
@@ -66,7 +68,7 @@ server AppContext{..} = do
     pId <- Att.PreviewId . read <$> param "previewId"
     runClient $ do
       rep <- Att.createReport session pId
-      loop (3 & seconds)
+      loop (10 & seconds)
         (\r -> Att.r_status r == "processing")
         (Att.getReport session $ Att.r_reportId rep)
 
@@ -85,5 +87,7 @@ loop :: (MonadIO m, ToJSON r) => Int -> (r -> Bool) -> m r -> m r
 loop usec cond f = go
   where
     go = f >>= \case
-      res | cond res -> liftIO (threadDelay usec) >> go
+      res | cond res -> do
+        liftIO $  L.putStrLn $ Aeson.encodeToLazyText res
+        liftIO (threadDelay usec) >> go
       res -> return res
