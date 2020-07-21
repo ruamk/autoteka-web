@@ -1,0 +1,7 @@
+resolver: lts-15.15
+packages:
+- .
+
+extra-deps:
+- github: ruamk/autoteka
+  commit: 302621f3df42a04923b873c2fac122c834f3bda8

@@ -2,6 +2,9 @@
   "name": "autoteka-web",
   "version": "1.0.0",
   "description": "Demo of Autoteka API usage.",
+  "browserslist": [
+     "last 1 Chrome versions"
+  ],
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,11 +17,12 @@
   "license": "MIT",
   "homepage": "https://github.com/ruamc/autoteka-web#readme",
   "dependencies": {
-    "bulma": "^0.8.0",
     "classnames": "^2.2.6",
     "preact": "^10.3.2"
   },
   "devDependencies": {
+    "bulma": "^0.8.0",
+    "@fortawesome/fontawesome-free": "^5.14.0",
     "parcel-bundler": "^1.12.4"
   }
 }

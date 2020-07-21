@@ -1,0 +1,37 @@
+name:       autoteka-web
+version:    0.1.0.0
+github:     "ruamc/autoteka-web"
+license:    MIT
+author:     "Max Taldykin"
+maintainer: "jorpic@gmail.com"
+copyright:  "2020 Max Taldykin"
+
+extra-source-files:
+- README.md
+- LICENSE
+
+ghc-options:
+  - -Wall
+  - -Werror
+  - -O2
+  - -funbox-strict-fields
+
+default-extensions:
+  - OverloadedStrings
+  - LambdaCase
+  - RecordWildCards
+
+executables:
+  back:
+    main: Main.hs
+    source-dirs: hs
+    dependencies:
+      - base
+      - aeson
+      - autoteka
+      - http-client
+      - http-client-tls
+      - scotty
+      - servant-client
+      - text
+      - time
