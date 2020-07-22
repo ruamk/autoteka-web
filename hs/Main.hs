@@ -1,8 +1,10 @@
 module Main where
 
-import           Control.Concurrent (threadDelay)
+import           Control.Concurrent (threadDelay, forkIO)
+import           Control.Monad (forever, void)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 
+import           Data.IORef
 import           Data.Aeson (ToJSON)
 import qualified Data.Aeson.Text as Aeson
 import           Data.Function ((&))
@@ -21,11 +23,10 @@ import qualified Autoteka as Att
 
 data AppContext = AppContext
   { frontDir :: FilePath
-  , session :: Att.AccessToken
   , clientEnv :: Servant.ClientEnv
+  , session :: IORef Att.AccessToken
   }
 
--- TODO: Att.mkClientEnv :: Manager -> ClientEnv
 -- TODO: translate ClientError to Att-specific errors
 
 main :: IO ()
@@ -35,41 +36,51 @@ main = do
 
   mgr <- newManager tlsManagerSettings
   let env = Att.mkClientEnv mgr
+  let getToken = Servant.runClientM
+        (Att.getToken clientId clientSecret)
+        env
 
-  let runClient = flip Servant.runClientM env
-  runClient (Att.getToken clientId clientSecret)
-    >>= \case
-      Left err -> print err
-      Right session -> do
-        scotty 3000 $ server $ AppContext "./dist/" session env
+  getToken >>= \case
+    Left err -> print err
+    Right s -> do
+      ss <- newIORef s
+      void $ forkIO $ forever $ do -- refresh session once in a while
+        threadDelay (20 * 60 * 1000000 :: Int) -- 20 min
+        getToken >>= \case
+          Left err -> print err
+          Right s' -> print s' >> writeIORef ss s'
+      scotty 3000 $ server $ AppContext "./dist/" env ss
 
 
 server :: AppContext -> ScottyM ()
 server AppContext{..} = do
-  let runClient f = liftIO (Servant.runClientM f clientEnv)
-        >>= either (text . L.pack . show) json
+  let runClient f = do
+        res <- liftIO $ do
+          ss <- readIORef session
+          Servant.runClientM (f ss) clientEnv
+        either (text . L.pack . show) json res
 
   get "/autoteka/packet_info"
-    $ runClient $ Att.getActivePackage session
+    $ runClient Att.getActivePackage
 
   let search f = do
         q <- f <$> param "search"
-        runClient $ do
-          pid <- Att.createPreview session q
+        runClient $ \ss -> do
+          pid <- Att.createPreview ss q
           loop (1 & seconds)
             (\p -> Att.p_status p == "processing")
-            (Att.getPreview session pid)
+            (Att.getPreview ss pid)
 
   get "/autoteka/reg/:search" $ search Att.RegNumber
   get "/autoteka/vin/:search" $ search Att.VIN
 
   get "/autoteka/report/:previewId" $ do
     pId <- Att.PreviewId . read <$> param "previewId"
-    runClient $ do
-      rep <- Att.createReport session pId
+    runClient $ \ss -> do
+      rep <- Att.createReport ss pId
       loop (10 & seconds)
         (\r -> Att.r_status r == "processing")
-        (Att.getReport session $ Att.r_reportId rep)
+        (Att.getReport ss $ Att.r_reportId rep)
 
   get "/"
     $ file $ frontDir <> "index.html"
