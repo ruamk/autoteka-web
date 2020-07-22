@@ -11,7 +11,6 @@ import qualified Data.Text.Lazy as L
 import qualified Data.Text.Lazy.IO as L
 import           Network.HTTP.Client (newManager)
 import           Network.HTTP.Client.TLS (tlsManagerSettings)
-import           Servant.Client (BaseUrl(..), Scheme(Https))
 import qualified Servant.Client as Servant
 import           System.Environment (lookupEnv)
 
@@ -35,7 +34,7 @@ main = do
   Just clientSecret <- fmap T.pack <$> lookupEnv "CLIENT_SECRET"
 
   mgr <- newManager tlsManagerSettings
-  let env = Servant.mkClientEnv mgr (BaseUrl Https "api.avito.ru" 443 "")
+  let env = Att.mkClientEnv mgr
 
   let runClient = flip Servant.runClientM env
   runClient (Att.getToken clientId clientSecret)
@@ -86,8 +85,9 @@ seconds n = n * 1000000
 loop :: (MonadIO m, ToJSON r) => Int -> (r -> Bool) -> m r -> m r
 loop usec cond f = go
   where
-    go = f >>= \case
-      res | cond res -> do
-        liftIO $  L.putStrLn $ Aeson.encodeToLazyText res
-        liftIO (threadDelay usec) >> go
-      res -> return res
+    go = do
+      res <- f
+      liftIO $  L.putStrLn $ Aeson.encodeToLazyText res
+      if cond res
+        then liftIO (threadDelay usec) >> go
+        else return res

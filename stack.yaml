@@ -4,4 +4,4 @@ packages:
 
 extra-deps:
 - github: ruamk/autoteka
-  commit: 7b153ebdf8574d8600618a9484baa5cda2951683
+  commit: 442adfaa25b17e03fd073887c8fbd54e68b5c777
