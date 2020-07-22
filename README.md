@@ -30,5 +30,4 @@ The code is quick an dirty.
 There are some hardcoded values:
   - backend listens to port `3000`
   - backend serves frontend from `./dist`
-
-There is also a *security vulnerability*: path is not checked for `..` when serving static resources.
+  - token refresh interval is 20 minutes

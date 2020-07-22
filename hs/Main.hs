@@ -86,7 +86,8 @@ server AppContext{..} = do
     $ file $ frontDir <> "index.html"
 
   get "/:file"
-    $ param "file" >>= file . (frontDir <>)
+    $ param "file"
+    >>= file . (frontDir <>) . T.unpack . T.replace ".." "-" . T.pack
 
 
 seconds :: Int -> Int
