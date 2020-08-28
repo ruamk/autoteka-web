@@ -30,6 +30,9 @@ export const Preview = ({preview}) =>
         { row("Год выпуска", preview, "data.year") }
       </tbody>
     </table>
+    <div class="time">
+      Данные получены за {preview.reqTime} сек.
+    </div>
   </div>;
 
 
@@ -52,5 +55,8 @@ export const Report = ({report}) => {
           { row("ДТП", report, "data.events.crashes.description") }
         </tbody>
       </table>
+      <div class="time">
+        Данные получены за {report.reqTime} сек.
+      </div>
     </div>);
 }

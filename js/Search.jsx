@@ -21,12 +21,14 @@ export class Search extends Component {
   getPreview(e) {
     e.preventDefault();
     this.setState({message: info("Отправляем запрос в Автотеку...")});
+    const startTime = new Date();
+    const timeDelta = () => (new Date() - startTime) / 1000;
 
     fetch(`/autoteka/reg/${encodeURIComponent(this.state.query)}`)
       .then(res => res.json())
       .then(res => this.setState(
         {message: null},
-        () => this.props.onPreview(res)
+        () => this.props.onPreview({reqTime: timeDelta(), ...res})
       ))
       .catch(e => this.setState({
         message: err("Ничего не найдено. Возможно это какая-то ошибка.")

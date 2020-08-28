@@ -19,9 +19,14 @@ export class ExtSearch extends Component {
   getReport() {
     const {previewId, onReport} = this.props;
     this.setState({status: "inProgress"})
+
+    const startTime = new Date();
+    const timeDelta = () => (new Date() - startTime) / 1000;
     fetch(`/autoteka/report/${previewId}`)
       .then(res => res.json())
-      .then(res => this.setState({status: "done"}, () => onReport(res)))
+      .then(res => this.setState(
+        {status: "done"},
+        () => onReport({reqTime: timeDelta(), ...res})))
       .catch(() => this.setState({status: "error"}));
   }
 
