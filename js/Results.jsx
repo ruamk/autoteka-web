@@ -43,6 +43,8 @@ export const Report = ({report}) => {
       <table class="table is-hoverable is-fullwidth">
         <tbody>
           { row("VIN", report, "data.head.vin") }
+          { row("Вес", report, "data.equipment.netWeight.description") }
+          { row("Максимальный вес", report, "data.equipment.maxWeight.description") }
           { row("Объём двигателя", report, "data.equipment.volume.description") }
           { row("Мощность", report, "data.equipment.horsepower.description") }
           { row("Пробег", report, "data.events.lastMileageRecord.description") }
